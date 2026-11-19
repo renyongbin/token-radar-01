@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Token Launch Radar — pre-token protocols ranked by implied value</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<header class="hero">
+  <div class="hero-inner">
+    <p class="kicker">Token Launch Radar</p>
+    <h1>Which protocol without a token is worth farming next?</h1>
+    <p class="lede">Two hundred protocols that record no token, ranked by what a token would be worth if the
+      protocol kept its record. Every rank is computed from the snapshot alone — TVL, seven-day growth,
+      time running with no token, chains and category — and every row carries a farm plan with costs and
+      times. Nothing here predicts whether or when a token launches.</p>
+    <dl class="stats" id="stats"></dl>
+    <p class="asof" id="asof"></p>
+  </div>
+</header>
+
+<main>
+  <section class="panel" id="board-panel" aria-label="Ranked board">
+    <div class="panel-head">
+      <h2>The board</h2>
+      <p class="hint">Click a row for its detail. Click a column heading to sort.</p>
+    </div>
+    <div class="controls">
+      <label class="control">Search
+        <input id="q" type="search" placeholder="Protocol name or slug" autocomplete="off">
+      </label>
+      <label class="control">Category
+        <select id="cat"><option value="">All categories</option></select>
+      </label>
+      <label class="control">Chain
+        <select id="chain"><option value="">All chains</option></select>
+      </label>
+      <label class="control check"><input id="watch" type="checkbox"> Watchlist only</label>
+      <label class="control">Sort
+        <select id="sort">
+          <option value="rank">Rank (best first)</option>
+          <option value="value">Implied value</option>
+          <option value="tvl">TVL</option>
+          <option value="growth">7-day growth</option>
+          <option value="age">Time with no token</option>
+          <option value="score">Score</option>
+        </select>
+      </label>
+    </div>
+    <p class="count" id="count"></p>
+    <div class="table-wrap">
+      <table id="board">
+        <thead>
+          <tr>
+            <th data-sort="rank">#</th>
+            <th data-sort="name">Protocol</th>
+            <th data-sort="category">Category</th>
+            <th>Chains</th>
+            <th data-sort="tvl" class="num">TVL</th>
+            <th data-sort="growth" class="num">7d</th>
+            <th data-sort="age" class="num">No token for</th>
+            <th data-sort="score" class="num">Score</th>
+            <th data-sort="value" class="num">Implied value</th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+    <p class="empty" id="empty" hidden>No protocol matches this filter.</p>
+  </section>
+
+  <section class="panel" id="detail-panel" aria-label="Protocol detail" hidden>
+    <div class="panel-head">
+      <h2 id="detail-name"></h2>
+      <p class="hint" id="detail-badges"></p>
+    </div>
+    <div id="detail"></div>
+  </section>
+
+  <section class="panel" id="live-panel" aria-label="Already trading">
+    <div class="panel-head">
+      <h2>Already trading — not ranked</h2>
+      <p class="hint">These protocols record a token, so they are not on the board. They are shown here so the
+        board is never mistaken for a list of everything big.</p>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Protocol</th><th class="num">TVL</th><th class="num">Market cap</th></tr></thead>
+        <tbody id="live-rows"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="panel" id="method-panel" aria-label="How the radar scores">
+    <div class="panel-head"><h2>How the radar scores</h2></div>
+    <div class="method">
+      <p>Each protocol gets a score from 0 to 1, then an implied value. The score is five parts of the
+        snapshot, nothing else:</p>
+      <ul>
+        <li><strong>Size, 45%.</strong> log10 of TVL, stretched between the snapshot&rsquo;s $5M floor and the
+          largest eligible TVL. More value locked, more to share if a token ever issues.</li>
+        <li><strong>Growth, 25%.</strong> The 7-day TVL change, winsorised to &minus;30%…+50%. Users arriving
+          now count; users leaving count against.</li>
+        <li><strong>Age, 15%.</strong> Years since first listed, up to the snapshot date, capped at 4 years.
+          A protocol that has run for years at scale with no token on record has the largest established
+          base to reward.</li>
+        <li><strong>Chains, 10%.</strong> How many chains it runs on, capped at 12. More chains, more places
+          to farm it.</li>
+        <li><strong>Sector, 5%.</strong> A small prior for the category: fee-earning venues score a touch
+          higher than pure infrastructure. It never decides a rank on its own.</li>
+      </ul>
+      <p>Implied value = TVL &times; (2% + 48% &times; score&sup2;). A middling score earns a middling
+        fraction of TVL; only a strong score earns a large one. Ranks follow the value, highest first.
+        A missing 7-day change or listing date scores neutral (0.5) on that part, never zero.</p>
+      <p>Eligibility: a protocol records no token (both its token id and symbol are empty in the snapshot)
+        and is not a wrapped, staked or bridged product of a token that already trades, not a centralised
+        exchange and not a bridge or liquid-staking product. The board holds all 40 watchlist protocols,
+        the 158 other eligible protocols, and 2 fillers — pre-token protocols kept out of the watchlist
+        only by a version marker in the name, flagged on their rows. The board says a protocol
+        <em>records</em> no token, never that it has none: the record is not proof.</p>
+      <p class="disclaimer">Implied values are this entry&rsquo;s own claim, computed from the snapshot. They
+        are not a price, not a prediction that a token will launch, and not financial advice.</p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <p>Token Launch Radar — built from the sealed snapshot of 14 November 2026. Source: the snapshot&rsquo;s
+    own figures; no live data, no network.</p>
+</footer>
+
+<script src="../data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
